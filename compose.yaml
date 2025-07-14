@@ -1,0 +1,61 @@
+services:
+  moodle:
+    container_name: lti_experiment_moodle
+    image: bitnami/moodle:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MOODLE_DATABASE_USER=${MOODLE_DB_USER}
+      - MOODLE_DATABASE_PASSWORD=${MOODLE_DB_PASSWORD}
+      - MOODLE_DATABASE_NAME=${MOODLE_DB_NAME}
+      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_HOST=moodle_db
+      - MOODLE_USERNAME=${MOODLE_USERNAME}
+      - MOODLE_PASSWORD=${MOODLE_PASSWORD}
+      - MOODLE_SITE_NAME="Local Moodle"
+      - BITNAMI_DEBUG=true
+    ports:
+      - 80:8080
+      - 443:8443
+    networks:
+      - moodle-network
+    volumes:
+      - moodle_data:/bitnami/moodle
+      - moodledata_data:/bitnami/moodledata
+    depends_on:
+      moodle_db:
+        condition: service_healthy
+    links:
+      - moodle_db
+
+  moodle_db:
+    container_name: lti_experiment_moodle_mariadb
+    image: bitnami/mariadb:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=${MOODLE_DB_USER}
+      - MARIADB_PASSWORD=${MOODLE_DB_PASSWORD}
+      - MARIADB_DATABASE=${MOODLE_DB_NAME}
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    networks:
+      - moodle-network
+    volumes:
+      - mariadb_data:/bitnami/mariadb
+    ports:
+      - ${MOODLE_DB_PORT}:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  moodle-network:
+
+volumes:
+  moodle_data:
+    driver: local
+  moodledata_data:
+    driver: local
+  mariadb_data:
+    driver: local
