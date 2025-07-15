@@ -1,1 +1,7 @@
 .env
+/dist/
+/vendor/
+/node_modules/
+.vscode/
+keys/**/*
+!keys/.gitkeep
