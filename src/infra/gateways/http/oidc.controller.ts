@@ -1,10 +1,20 @@
-import { Controller, Inject, Post, Request, Response } from "@nestjs/common";
+import {
+  Controller,
+  HttpStatus,
+  Inject,
+  Post,
+  Request,
+  Response,
+} from "@nestjs/common";
 import type { Request as HttpRequest, Response as HttpResponse } from "express";
+import { EnvVarsService } from "src/config/env/env.service";
 import { LmsRegisters } from "src/infra/lti/lms-registers";
 import { LmsLoginRequestBody } from "src/infra/lti/login-request";
+import { nonceTokenKeys, xsrfTokenSessionKey } from "src/infra/lti";
 
 @Controller({ path: "/oidc" })
 export class OIDCController {
+  @Inject(EnvVarsService) private env: EnvVarsService;
   @Inject(LmsRegisters) private registers: LmsRegisters;
 
   @Post("/login")
@@ -15,19 +25,9 @@ export class OIDCController {
     const lmsRequestBody = new LmsLoginRequestBody(request.body);
     const redirect = lmsRequestBody.intoLoginRedirect(this.registers);
 
-    response.cookie("rndNonce", lmsRequestBody.randomNonce, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      path: "/",
-    });
-
-    response.cookie("xsrf", lmsRequestBody.randomState, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      path: "/",
-    });
+    request.session[lmsRequestBody.randomNonce] = lmsRequestBody.getPayload();
+    request.session[xsrfTokenSessionKey] = lmsRequestBody.randomState;
+    request.session.save();
 
     return response.redirect(redirect.toString());
   }
