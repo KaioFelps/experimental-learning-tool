@@ -10,29 +10,29 @@ import { randomBytes } from "node:crypto";
 import { UnauthorizedException } from "@nestjs/common";
 import type { LmsRegisters } from "./lms-registers";
 
-export class LmsLoginRequestBody {
+export type OIDCLoginPayload = {
   /** Issuer (url da LMS que está iniciando o launch)
    * Com base no Issuer (E TAMBÉM client_id) é que vamos:
    * - descobrir qual o endpoint de autenticação para onde devemos enviar a requisição
    * - encontrar a chave pública que baixamos (ou encontrar o endpoint para baixá-la) e verificar
    *   a integridade dos próximos tokens
    */
-  public iss: string;
+  iss: string;
   /** Link do launch Learning Tool
    * A LMS irá enviar um post nesse uri com o `id_token`, completando o launch/linking.
    * Esse link é configurado na própria LMS quando a Learning Tool está sendo adicionada.
    */
-  public target_link_uri: string;
+  target_link_uri: string;
   /** Contexto do login
    * Um valor único que identifica a sessão. É gerado pelo próprio Moodle (e também só é usado por ele).
    * Identifica aquele contexto específico, associando o estado da requisição ao aluno/usuário
    * logado no Moodle.
    */
-  public login_hint: string;
+  login_hint: string;
   /** Metadados dessa mensagem
    * São informações utilizadas pelo Moodle e devem ser repassadas de volta para o Moodle o tempo inteiro.
    */
-  public lti_message_hint: {
+  lti_message_hint: {
     /** Course Module ID
      * ID do curso do Moodle que está atrelado com essa ferramenta; do qual o launch está sendo feito
      */
@@ -44,7 +44,7 @@ export class LmsLoginRequestBody {
    * O Moodle quem gera esse ID (por exemplo) e precisamos registrá-lo aqui.
    * Com esse id podemos encontrar a chave (via endpoint de LWKS da LMS) para validar o `id_token`.
    */
-  public client_id: string;
+  client_id: string;
   /** Outro ID atribuído à LT pela LMS
    * A diferença é que o client_id é único entre a LT e um LMS.
    * Já o ID de deployment muda de curso pra curso. Isso é, esse deploymend_id é único do curso X, mas
@@ -52,20 +52,43 @@ export class LmsLoginRequestBody {
    *
    * Esse valor é enviado pela LMS na requisição, diferente do client_id que é fornecido na hora do registro.
    */
-  public lti_deployment_id: string;
+  lti_deployment_id: string;
+};
 
+export class LmsLoginRequestBody {
+  private payload: OIDCLoginPayload;
   public randomState = LmsLoginRequestBody.genSecureState();
   public randomNonce = LmsLoginRequestBody.genSecureState();
 
-  public constructor(body: LmsLoginRequestBody) {
-    this.client_id = body.client_id;
-    this.iss = body.iss;
-    this.login_hint = body.login_hint;
-    this.lti_deployment_id = body.lti_deployment_id;
-    this.lti_message_hint = JSON.parse(
-      body.lti_message_hint as unknown as string,
-    );
-    this.target_link_uri = body.target_link_uri;
+  public constructor({ lti_message_hint, ...payload }: OIDCLoginPayload) {
+    this.payload = {
+      ...payload,
+      lti_message_hint: JSON.parse(lti_message_hint as unknown as string),
+    };
+  }
+
+  public get iss() {
+    return this.payload.iss;
+  }
+
+  public get target_link_uri() {
+    return this.payload.target_link_uri;
+  }
+
+  public get login_hint() {
+    return this.payload.login_hint;
+  }
+
+  public get lti_message_hint() {
+    return this.payload.lti_message_hint;
+  }
+
+  public get client_id() {
+    return this.payload.client_id;
+  }
+
+  public get lti_deployment_id() {
+    return this.payload.lti_deployment_id;
   }
 
   public intoLoginRedirect(registers: LmsRegisters): URL {
@@ -85,7 +108,16 @@ export class LmsLoginRequestBody {
     redirectUrl.searchParams.set("login_hint", this.login_hint);
     redirectUrl.searchParams.set("state", this.randomState);
     redirectUrl.searchParams.set("nonce", this.randomNonce);
-    redirectUrl.searchParams.set("prompt", "none"); // diz para o OAuth não questionar o usuário quanto a nada, apenas prosseguir se ele estiver logado
+
+    // Por padrão, a response_mode seria "query" e o Moodle enviaria uma requisição GET com o id_token + state
+    // como Query Params, porém isso não é o esperado no novo padrão LTI 1.3.
+    //
+    // No LTI 1.3, o correto é o id_token e state serem enviados como corpo de uma requisição POST, e isso
+    // é garantido setando "response_mode" como "form_post".
+    redirectUrl.searchParams.set("response_mode", "form_post");
+
+    // Diz para o OAuth não questionar o usuário quanto a nada, apenas prosseguir se ele estiver logado
+    redirectUrl.searchParams.set("prompt", "none");
     redirectUrl.searchParams.set(
       "lti_message_hint",
       JSON.stringify(this.lti_message_hint),
@@ -96,5 +128,9 @@ export class LmsLoginRequestBody {
 
   private static genSecureState(): string {
     return randomBytes(32).toString("hex");
+  }
+
+  public getPayload(): OIDCLoginPayload {
+    return this.payload;
   }
 }
