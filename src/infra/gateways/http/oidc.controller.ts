@@ -15,8 +15,19 @@ export class OIDCController {
     const lmsRequestBody = new LmsLoginRequestBody(request.body);
     const redirect = lmsRequestBody.intoLoginRedirect(this.registers);
 
-    response.cookie("rndNonce", lmsRequestBody.randomNonce);
-    response.cookie("xsrf", lmsRequestBody.randomState);
+    response.cookie("rndNonce", lmsRequestBody.randomNonce, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+    });
+
+    response.cookie("xsrf", lmsRequestBody.randomState, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+    });
 
     return response.redirect(redirect.toString());
   }
