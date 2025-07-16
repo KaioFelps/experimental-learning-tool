@@ -10,7 +10,7 @@ import { LmsData, LmsRegisters } from "./lms-registers";
       inject: [EnvVarsService],
       scope: Scope.DEFAULT,
       useFactory(env: EnvVarsService) {
-        const lmsRegisters = new LmsRegisters();
+        const lmsRegisters = new LmsRegisters(env);
 
         const data = new LmsData({
           authEndpoint: env.vars.lti.authEndpoint,
