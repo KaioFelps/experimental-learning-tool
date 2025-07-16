@@ -14,7 +14,7 @@ Acessando o Moodle, em "http://localhost/mod/lti/coursetooledit.php?course=<ID D
 (LTI 1.3) com os seguintes valores nos campos:
 
 - Tool name: Teste
-- Tool URL: http://localhost:3000
+- Tool URL: http://localhost:3000/lti/launch
 - Public Key Type: rsa
 - Public Key: copie a chave pública gerada com o comando acima
 - Initiate Login URL: http://localhost:3000/login
