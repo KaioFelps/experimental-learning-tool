@@ -5,6 +5,7 @@ import { deepFreeze } from "../../utils/deep-freeze";
 const environmentVariablesSchema = z.object({
   app: z.object({
     port: z.coerce.number().optional().default(3000),
+    env: z.enum(["dev", "prod", "test"]).optional().default("dev"),
   }),
 
   db: z.object({
@@ -37,6 +38,7 @@ export class EnvVarsService {
     const processEnvVars: DeepPartial<EnvVars> = {
       app: {
         port: process.env.PORT as number | undefined,
+        env: process.env.NODE_ENV as EnvVars["app"]["env"] | undefined,
       },
       db: {
         name: process.env.MOODLE_DB_NAME,
