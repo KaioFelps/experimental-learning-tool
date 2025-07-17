@@ -1,6 +1,6 @@
 import { Injectable, Scope } from "@nestjs/common";
 import z from "zod";
-import { deepFreeze } from "../../utils/deep-freeze";
+import { deepFreeze } from "../../../utils/deep-freeze";
 
 const environmentVariablesSchema = z.object({
   app: z.object({
