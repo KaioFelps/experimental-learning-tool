@@ -1,21 +1,19 @@
 import {
   BadRequestException,
   Controller,
-  Get,
   Inject,
   Post,
-  Query,
   Req,
   Res,
   UnauthorizedException,
 } from "@nestjs/common";
 import { either, option } from "fp-ts";
-import { xsrfTokenSessionKey } from "src/infra/lti";
-import { HttpRequest, HttpResponse } from "src/lib/nest";
-import z, { treeifyError } from "zod";
-import { LmsRegisters } from "src/infra/lti/lms-registers";
-import { OIDCLoginPayload } from "src/infra/lti/login-request";
 import * as jose from "jose";
+import { xsrfTokenSessionKey } from "src/infra/lti";
+import { LmsRegisters } from "src/infra/lti/lms-registers";
+import type { OIDCLoginPayload } from "src/infra/lti/login-request";
+import type { HttpRequest, HttpResponse } from "src/lib/nest";
+import z, { treeifyError } from "zod";
 
 @Controller({ path: "lti" })
 export class LtiController {
@@ -32,7 +30,7 @@ export class LtiController {
     const { id_token, state } = launch.left;
 
     const sessionState = request.session[xsrfTokenSessionKey];
-    if (sessionState != state) throw new UnauthorizedException();
+    if (sessionState !== state) throw new UnauthorizedException();
 
     const header = JSON.parse(
       Buffer.from(id_token.split(".")[0], "base64url").toString(),

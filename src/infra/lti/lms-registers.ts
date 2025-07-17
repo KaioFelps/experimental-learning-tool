@@ -1,10 +1,10 @@
 // Essa classe estática contém os registros dessa learning tool nas LMS
 // Isso deve ser feito dinâmicamente, mantendo os registros salvos em um banco de dados,
 
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { option } from "fp-ts";
 import { pipe } from "fp-ts/lib/function";
-import { EnvVarsService } from "src/config/env/env.service";
+import type { EnvVarsService } from "src/config/env/env.service";
 
 // já que várias LMS podem registrar a learning tool (várias vezes, uma por curso, pelo menos).
 @Injectable()
@@ -54,9 +54,9 @@ class KeysMap {
 
   private async update() {
     const keysResponse = await fetch(this.jwksEndpoint);
-    const keys = (await keysResponse.json())["keys"].map((keyObj: object) => [
-      keyObj["kid"],
-      keyObj as Key,
+    const keys = (await keysResponse.json()).keys.map((keyObj: Key) => [
+      keyObj.kid,
+      keyObj,
     ]);
 
     this.map = new Map(keys);

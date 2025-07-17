@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
-import { OIDCController } from "./oidc.controller";
-import { LtiController } from "./lti.controller";
 import { HomeController } from "./home.controller";
+import { LtiController } from "./lti.controller";
+import { OIDCController } from "./oidc.controller";
 
 @Module({
   controllers: [OIDCController, LtiController, HomeController],

@@ -1,16 +1,9 @@
-import {
-  Controller,
-  HttpStatus,
-  Inject,
-  Post,
-  Request,
-  Response,
-} from "@nestjs/common";
+import { Controller, Inject, Post, Request, Response } from "@nestjs/common";
 import type { Request as HttpRequest, Response as HttpResponse } from "express";
 import { EnvVarsService } from "src/config/env/env.service";
+import { xsrfTokenSessionKey } from "src/infra/lti";
 import { LmsRegisters } from "src/infra/lti/lms-registers";
 import { LmsLoginRequestBody } from "src/infra/lti/login-request";
-import { nonceTokenKeys, xsrfTokenSessionKey } from "src/infra/lti";
 
 @Controller({ path: "/oidc" })
 export class OIDCController {

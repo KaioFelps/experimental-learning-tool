@@ -1,11 +1,11 @@
+import { join } from "node:path";
 import { NestFactory } from "@nestjs/core";
+import type { NestExpressApplication } from "@nestjs/platform-express";
+import * as cookieParser from "cookie-parser";
 import { configDotenv } from "dotenv";
+import * as session from "express-session";
 import { AppModule } from "./app.module";
 import { EnvVarsService } from "./config/env/env.service";
-import { NestExpressApplication } from "@nestjs/platform-express";
-import { join } from "node:path";
-import * as cookieParser from "cookie-parser";
-import * as session from "express-session";
 
 async function bootstrap() {
   configDotenv();
