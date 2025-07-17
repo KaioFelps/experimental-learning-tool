@@ -4,13 +4,13 @@ import type { NestExpressApplication } from "@nestjs/platform-express";
 import * as cookieParser from "cookie-parser";
 import { configDotenv } from "dotenv";
 import * as session from "express-session";
-import { AppModule } from "./app.module";
-import { EnvVarsService } from "./config/env/env.service";
+import { EnvVarsService } from "./modules/config/env/env.service";
+import { RootModule } from "./root.module";
 
 async function bootstrap() {
   configDotenv();
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(RootModule);
 
   const key = "gen-some-secure-secret-key-later";
   app.use(cookieParser());
