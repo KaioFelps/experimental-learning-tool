@@ -1,6 +1,8 @@
-import { Global, Module, Scope } from "@nestjs/common";
-import { EnvVarsService } from "src/config/env/env.service";
-import { LmsData, LmsRegisters } from "./lms-registers";
+import { Global, Module } from "@nestjs/common";
+import { EnvVarsService } from "../config/env/env.service";
+import { LtiController } from "./controllers/lti.controller";
+import { OIDCController } from "./controllers/oidc.controller";
+import { type LmsData, LmsRegisters } from "./lms-registers";
 
 @Global()
 @Module({
@@ -8,15 +10,14 @@ import { LmsData, LmsRegisters } from "./lms-registers";
     {
       provide: LmsRegisters,
       inject: [EnvVarsService],
-      scope: Scope.DEFAULT,
       useFactory(env: EnvVarsService) {
         const lmsRegisters = new LmsRegisters(env);
 
-        const data = new LmsData({
+        const data = {
           authEndpoint: env.vars.lti.authEndpoint,
           JWKSEndpoint: env.vars.lti.jwksEndpoint,
           tokenEndpoint: env.vars.lti.tokenEndpoint,
-        });
+        } satisfies LmsData;
 
         lmsRegisters.register(
           env.vars.lti.clientId,
@@ -29,5 +30,6 @@ import { LmsData, LmsRegisters } from "./lms-registers";
     },
   ],
   exports: [LmsRegisters],
+  controllers: [LtiController, OIDCController],
 })
 export class LtiModule {}

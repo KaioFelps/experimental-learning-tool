@@ -1,11 +1,17 @@
-// Essa classe estática contém os registros dessa learning tool nas LMS
-// Isso deve ser feito dinâmicamente, mantendo os registros salvos em um banco de dados,
-
 import { Injectable } from "@nestjs/common";
 import { option } from "fp-ts";
 import { pipe } from "fp-ts/lib/function";
-import type { EnvVarsService } from "src/config/env/env.service";
+import type { EnvVarsService } from "src/modules/config/env/env.service";
 
+export type LmsData = {
+  // Endpoint para buscar as chaves de validação
+  JWKSEndpoint: string;
+  tokenEndpoint: string;
+  authEndpoint: string;
+};
+
+// Essa classe estática contém os registros dessa learning tool nas LMS
+// Isso deve ser feito dinâmicamente, mantendo os registros salvos em um banco de dados,
 // já que várias LMS podem registrar a learning tool (várias vezes, uma por curso, pelo menos).
 @Injectable()
 export class LmsRegisters {
@@ -30,16 +36,14 @@ export class LmsRegisters {
   }
 }
 
-export class LmsData {
-  // Endpoint para buscar as chaves de validação
-  public JWKSEndpoint: string;
-  public tokenEndpoint: string;
-  public authEndpoint: string;
-
-  public constructor(data: Required<LmsData>) {
-    Object.assign(this, data);
-  }
-}
+type Key = {
+  kty: string;
+  alg: string;
+  kid: string;
+  e: string;
+  n: string;
+  use: string;
+};
 
 class KeysMap {
   private ttl: option.Option<Date>;
@@ -74,12 +78,3 @@ class KeysMap {
     return pipe(this.map.get(keyId), option.fromNullable);
   }
 }
-
-type Key = {
-  kty: string;
-  alg: string;
-  kid: string;
-  e: string;
-  n: string;
-  use: string;
-};
