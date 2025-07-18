@@ -11,7 +11,7 @@ services:
       - MOODLE_DATABASE_HOST=moodle_db
       - MOODLE_USERNAME=${MOODLE_USERNAME}
       - MOODLE_PASSWORD=${MOODLE_PASSWORD}
-      - MOODLE_SITE_NAME="Local Moodle"
+      - MOODLE_SITE_NAME=Local Moodle
       - BITNAMI_DEBUG=true
     ports:
       - 80:8080
