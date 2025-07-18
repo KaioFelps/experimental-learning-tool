@@ -4,5 +4,9 @@ import { Controller, Get, Render } from "@nestjs/common";
 export class HomeController {
   @Get("/")
   @Render("index")
-  async home() {}
+  async home() {
+    return {
+      userName: "Foo",
+    };
+  }
 }
