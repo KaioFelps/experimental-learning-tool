@@ -15,6 +15,7 @@ import { treeifyError } from "zod";
 import { XSRF_SESSION_KEY } from "../consts";
 import type { OIDCLoginType } from "../dtos/login-request";
 import { LtiLaunchDto } from "../dtos/lti-launch";
+import { LtiTokenData } from "../lti-token";
 
 @Controller({ path: "lti" })
 export class LtiController {
@@ -34,9 +35,15 @@ export class LtiController {
     if (sessionState !== state) throw new UnauthorizedException();
 
     const token = await this.getVerifiedTokenPayloadOrThrow(request, id_token);
+    const _ltiTokenData = LtiTokenData.fromLtiIdToken(token);
 
-    // TODO: remover esse console.log
-    console.log(token);
+    if (either.isLeft(_ltiTokenData))
+      throw new UnauthorizedException(_ltiTokenData.left);
+
+    const ltiTokenData = _ltiTokenData.right;
+    // biome-ignore lint/complexity/useLiteralKeys: Don't wanna need to augment SessionData interface
+    request.session["ltiToken"] = ltiTokenData.getData();
+
     response.redirect("/");
   }
 
