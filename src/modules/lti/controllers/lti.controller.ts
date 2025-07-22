@@ -1,82 +1,51 @@
 import {
   BadRequestException,
   Controller,
-  Inject,
   Post,
   Req,
   Res,
   UnauthorizedException,
 } from "@nestjs/common";
-import { either, option } from "fp-ts";
-import * as jose from "jose";
+import { either } from "fp-ts";
 import type { HttpRequest, HttpResponse } from "src/lib/nest";
-import { LmsRegisters } from "src/modules/lti/lms-registers";
 import { treeifyError } from "zod";
-import { XSRF_SESSION_KEY } from "../consts";
-import type { OIDCLoginType } from "../dtos/login-request";
+import {
+  ACCESS_TOKEN_SESSION_KEY,
+  LTI_TOKEN_SESSION_KEY,
+  XSRF_SESSION_KEY,
+} from "../consts";
 import { LtiLaunchDto } from "../dtos/lti-launch";
-import { LtiTokenData } from "../lti-token";
+// biome-ignore lint/style/useImportType: Need to import it as a concrete value due to Nest.js dependency injector
+import { LtiService } from "../service";
 
 @Controller({ path: "lti" })
 export class LtiController {
-  @Inject(LmsRegisters) private lmsRegisters: LmsRegisters;
+  public constructor(private ltiService: LtiService) {}
 
   @Post("launch")
   async launch(@Req() request: HttpRequest, @Res() response: HttpResponse) {
     const launch = LtiLaunchDto.fromObject(request.body);
 
-    if (either.isLeft(launch)) {
+    if (either.isLeft(launch))
       throw new BadRequestException(treeifyError(launch.left));
-    }
 
-    const { id_token, state } = launch.right;
+    const { id_token: idToken, state } = launch.right;
 
-    const sessionState = request.session[XSRF_SESSION_KEY];
-    if (sessionState !== state) throw new UnauthorizedException();
+    checkXsrfOrThrow(request.session[XSRF_SESSION_KEY], state);
 
-    const token = await this.getVerifiedTokenPayloadOrThrow(request, id_token);
-    const _ltiTokenData = LtiTokenData.fromLtiIdToken(token);
+    const tokenData = await this.ltiService.decodeAndVerifyIdToken(
+      request,
+      idToken,
+    );
+    request.session[LTI_TOKEN_SESSION_KEY] = tokenData.getData();
 
-    if (either.isLeft(_ltiTokenData))
-      throw new UnauthorizedException(_ltiTokenData.left);
-
-    const ltiTokenData = _ltiTokenData.right;
-    // biome-ignore lint/complexity/useLiteralKeys: Don't wanna need to augment SessionData interface
-    request.session["ltiToken"] = ltiTokenData.getData();
+    const token = await this.ltiService.getAuthToken(tokenData);
+    request.session[ACCESS_TOKEN_SESSION_KEY] = token;
 
     response.redirect("/");
   }
+}
 
-  private async getVerifiedTokenPayloadOrThrow(
-    request: HttpRequest,
-    id_token: string,
-  ): Promise<jose.JWTPayload> {
-    const header = JSON.parse(
-      Buffer.from(id_token.split(".")[0], "base64url").toString(),
-    );
-
-    const _signingKey = await this.lmsRegisters.keys().get(header.kid!);
-
-    const token = jose.decodeJwt(id_token) as jose.JWTPayload & {
-      nonce: string;
-    };
-
-    const payload = request.session[token.nonce] as undefined | OIDCLoginType;
-
-    if (option.isNone(_signingKey) || !payload) {
-      throw new UnauthorizedException();
-    }
-
-    const signingKey = _signingKey.value;
-
-    const key = await jose.importJWK(signingKey, signingKey.alg);
-
-    const verifiedToken = await jose.jwtVerify(id_token, key, {
-      algorithms: [signingKey.alg],
-      audience: payload.client_id,
-      issuer: payload.iss,
-    });
-
-    return verifiedToken.payload;
-  }
+function checkXsrfOrThrow(stored: string, incoming: string) {
+  if (stored !== incoming) throw new UnauthorizedException();
 }

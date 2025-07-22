@@ -5,3 +5,6 @@ export const XSRF_SESSION_KEY = "ltiExpXSRF";
 // Valor que vem dentro do token JWT já decodificado
 // Serve para verificar a integridade do token
 export const NONCE_KEY = "ltiExpNonce";
+
+export const LTI_TOKEN_SESSION_KEY = "ltiToken";
+export const ACCESS_TOKEN_SESSION_KEY = "accessToken";
