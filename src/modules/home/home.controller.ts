@@ -1,8 +1,14 @@
 import { Controller, Get, Render, Req } from "@nestjs/common";
 import type { HttpRequest } from "src/lib/nest";
 
+// biome-ignore lint/style/useImportType: Nest.js needs it to be a concrete type for DI
+import { HomeService } from "./service";
+import { ACCESS_TOKEN_SESSION_KEY, LTI_TOKEN_SESSION_KEY } from "../lti/consts";
+
 @Controller()
 export class HomeController {
+  public constructor(private service: HomeService) {}
+
   @Get("/")
   @Render("index")
   async home(@Req() request: HttpRequest) {
@@ -13,6 +19,11 @@ export class HomeController {
       2,
     );
 
-    return { userName: "Foo", stringifiedToken };
+    const users = await this.service.getMembersList(
+      request.session[LTI_TOKEN_SESSION_KEY],
+      request.session[ACCESS_TOKEN_SESSION_KEY],
+    );
+
+    return { userName: "Foo", stringifiedToken, users };
   }
 }

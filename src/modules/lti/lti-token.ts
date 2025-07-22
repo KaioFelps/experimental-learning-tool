@@ -116,4 +116,8 @@ export class LtiTokenData {
   public get learningToolLaunchContext() {
     return this.data.learningToolLaunchContext;
   }
+
+  public get lmsEndpoints() {
+    return this.data.lmsEndpoints;
+  }
 }
