@@ -9,6 +9,7 @@ const ltiTokenSchema = z.object({
     learningToolClientIdInsideLms: z.string(),
     exp: z.number(),
     deploymentId: z.string(),
+    serviceEndpointsUrl: z.url(),
   }),
   user: z.object({
     id: z.string(),
@@ -29,6 +30,9 @@ const ltiTokenSchema = z.object({
     titleOnResources: z.string(),
     descriptionOnResources: z.string(),
     redirectBackUrl: z.url(),
+  }),
+  lmsEndpoints: z.object({
+    contextMembership: z.string(),
   }),
 });
 
@@ -75,6 +79,14 @@ export class LtiTokenData {
         lmsUrl: idToken.iss,
         deploymentId:
           idToken["https://purl.imsglobal.org/spec/lti/claim/deployment_id"],
+        serviceEndpointsUrl:
+          idToken["https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome"]
+            .lis_outcome_service_url,
+      },
+      lmsEndpoints: {
+        contextMembership:
+          idToken["https://purl.imsglobal.org/spec/lti/claim/custom"]
+            ?.context_memberships_url,
       },
     } satisfies LtiToken);
 
@@ -92,12 +104,15 @@ export class LtiTokenData {
   public get tokenData() {
     return this.data.tokenData;
   }
+
   public get user() {
     return this.data.user;
   }
+
   public get courseContext() {
     return this.data.courseContext;
   }
+
   public get learningToolLaunchContext() {
     return this.data.learningToolLaunchContext;
   }
