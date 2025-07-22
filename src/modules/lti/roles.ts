@@ -78,9 +78,9 @@ export function getRolesFromClaims(roleUrls: string[]): Roles {
 }
 
 function getCategoryFromUrl(roleUrl: string): [string, RoleKind] {
-  if (roleUrl.includes("membership#")) return [roleUrl, "membership"];
-  if (roleUrl.includes("institution#")) return [roleUrl, "institution"];
-  if (roleUrl.includes("system#")) return [roleUrl, "system"];
+  if (roleUrl.includes("/membership")) return [roleUrl, "membership"];
+  if (roleUrl.includes("/institution")) return [roleUrl, "institution"];
+  if (roleUrl.includes("/system")) return [roleUrl, "system"];
   return [roleUrl, undefined];
 }
 
