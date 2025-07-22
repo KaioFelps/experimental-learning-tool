@@ -24,7 +24,7 @@ async function bootstrap() {
   );
 
   app.setViewEngine("ejs");
-  const viewsDir = join(__dirname, "..", "resources", "views");
+  const viewsDir = join(__dirname, "..", "views");
   app.setBaseViewsDir(viewsDir);
 
   const env = app.get(EnvVarsService);
