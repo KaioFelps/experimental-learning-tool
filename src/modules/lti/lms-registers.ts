@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { option } from "fp-ts";
 import { pipe } from "fp-ts/lib/function";
-import type { EnvVarsService } from "src/modules/config/env/env.service";
+import { EnvVarsService } from "src/modules/config/env/env.service";
 
 export type LmsData = {
   // Endpoint para buscar as chaves de validação
@@ -18,9 +18,17 @@ export class LmsRegisters {
   private registersMap: Map<string, LmsData>;
   private keysMap: KeysMap;
 
-  public constructor(env: EnvVarsService) {
+  public constructor(@Inject(EnvVarsService) private env: EnvVarsService) {
     this.keysMap = new KeysMap(env.vars.lti.jwksEndpoint);
     this.registersMap = new Map();
+
+    const data = {
+      authEndpoint: env.vars.lti.authEndpoint,
+      JWKSEndpoint: env.vars.lti.jwksEndpoint,
+      tokenEndpoint: env.vars.lti.tokenEndpoint,
+    } satisfies LmsData;
+
+    this.register(env.vars.lti.clientId, this.env.vars.lti.lmsAsIssuer, data);
   }
 
   public register(clientId: string, lms: string, data: LmsData) {
