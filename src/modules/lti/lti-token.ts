@@ -5,6 +5,7 @@ import { getRolesFromClaims } from "../../modules/lti/roles";
 /// Dados extraídos de uma mensagem LTI Launch
 const ltiTokenSchema = z.object({
   tokenData: z.object({
+    lmsFamilyCode: z.enum(["moodle"]),
     lmsUrl: z.string(),
     learningToolClientIdInsideLms: z.string(),
     exp: z.number(),
@@ -13,6 +14,8 @@ const ltiTokenSchema = z.object({
   }),
   user: z.object({
     id: z.string(),
+    name: z.string(),
+    email: z.string(),
     roles: z.object({
       membership: z.array(z.string()).optional(),
       institution: z.array(z.string()).optional(),
@@ -56,6 +59,8 @@ export class LtiTokenData {
     const { success, data, error } = ltiTokenSchema.safeParse({
       user: {
         id: idToken.sub,
+        email: idToken.email,
+        name: idToken.name,
         roles: getRolesFromClaims(
           idToken["https://purl.imsglobal.org/spec/lti/claim/roles"],
         ),
@@ -82,6 +87,9 @@ export class LtiTokenData {
         serviceEndpointsUrl:
           idToken["https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome"]
             .lis_outcome_service_url,
+        lmsFamilyCode:
+          idToken["https://purl.imsglobal.org/spec/lti/claim/tool_platform"]
+            .product_family_code,
       },
       lmsEndpoints: {
         contextMembership:
