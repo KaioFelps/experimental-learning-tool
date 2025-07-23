@@ -15,7 +15,6 @@ import {
   XSRF_SESSION_KEY,
 } from "../consts";
 import { LtiLaunchDto } from "../dtos/lti-launch";
-// biome-ignore lint/style/useImportType: Need to import it as a concrete value due to Nest.js dependency injector
 import { LtiService } from "../service";
 
 @Controller({ path: "lti" })

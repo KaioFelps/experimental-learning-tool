@@ -1,7 +1,6 @@
 import { Controller, Get, Render, Req } from "@nestjs/common";
 import type { HttpRequest } from "src/lib/nest";
 import { ACCESS_TOKEN_SESSION_KEY, LTI_TOKEN_SESSION_KEY } from "../lti/consts";
-// biome-ignore lint/style/useImportType: Nest.js needs it to be a concrete type for DI
 import { HomeService } from "./service";
 
 @Controller()

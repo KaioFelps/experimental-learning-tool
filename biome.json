@@ -19,7 +19,8 @@
     "enabled": true,
     "rules": {
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useImportType": "off"
       },
       "complexity": {
         "noStaticOnlyClass": "off",

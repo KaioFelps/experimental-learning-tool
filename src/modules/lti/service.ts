@@ -2,10 +2,8 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { either, option } from "fp-ts";
 import * as jose from "jose";
 import type { HttpRequest } from "src/lib/nest";
-// biome-ignore lint/style/useImportType: Precisa ser uma classe concreta, caso contrário o Nest não consegue injetar.
 import { EnvVarsService } from "../config/env/env.service";
 import type { OIDCLoginType } from "./dtos/login-request";
-// biome-ignore lint/style/useImportType: Precisa ser uma classe concreta, caso contrário o Nest não consegue injetar.
 import { LmsRegisters } from "./lms-registers";
 import { LtiTokenData } from "./lti-token";
 import type { AccessToken } from "./types";
