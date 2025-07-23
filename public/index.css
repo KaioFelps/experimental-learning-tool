@@ -1,6 +1,15 @@
+:root {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+main {
+    margin: 24px;
+}
+
 .header {
-    padding: 24px 10px;
+    padding: 10px 24px;
     background: #eeeeee;
+    border-radius: 12px;
 }
 
 .user-list {
@@ -10,8 +19,8 @@
 }
 
 .user-container {
-    border: 1px solid #e0e0e0;
-    background-color: #fafafa;
+    border: 1px solid #d0d0d0;
+    background-color: #fefefe;
     padding: 16px 24px;
     border-radius: 12px;
 
@@ -21,6 +30,7 @@
 }
 
 .user-container-roles {
+    margin-top: 10px;
     display: flex;
     gap: 8px;
 }

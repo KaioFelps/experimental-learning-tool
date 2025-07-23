@@ -5,32 +5,34 @@
     <link rel="stylesheet" href="http://localhost:3000/index.css">
   </head>
   <body>
-    <header class="header">
-      <span><%= userName %></span>
-    </header>
-    <h1>LT Home Page</h1>
-    <h2>Código LTI stringificado como JSON:</h2>
-    <code>
-      <pre><%= stringifiedToken %></pre>
-    </code>
+    <main>
+      <!-- <header class="header">
+        <span><%= userName %></span>
+      </header> -->
+      <h1>LT Home Page</h1>
+      <h2>Código LTI stringificado como JSON:</h2>
+      <code>
+        <pre><%= stringifiedToken %></pre>
+      </code>
 
-    <h2>Membros do curso</h2>
-    <div class="user-list">
-      <% users.forEach(user => { %>
-        <div class="user-container">
-          <h3><%= user.name %></h3>
-          
-          <span><strong>ID</strong>: <%= user.id %></span>
-          <span><strong>E-mail</strong>: <%= user.email %></span>
-          <span><strong>Username</strong>: <%= user.username %></span>
+      <h2>Membros do curso</h2>
+      <div class="user-list">
+        <% users.forEach(user => { %>
+          <div class="user-container">
+            <h3><%= user.name %></h3>
+            
+            <span><strong>ID</strong>: <%= user.id %></span>
+            <span><strong>E-mail</strong>: <%= user.email %></span>
+            <span><strong>Username</strong>: <%= user.username %></span>
 
-          <div class="user-container-roles">
-            <% user.roles.forEach(role => { %>
-              <span class="role-chip"><%= role %></span>
-            <% }) %>
+            <div class="user-container-roles">
+              <% user.roles.forEach(role => { %>
+                <span class="role-chip"><%= role %></span>
+              <% }) %>
+            </div>
           </div>
-        </div>
-      <% }) %>
-    </div>
+        <% }) %>
+      </div>
+    </main>
   </body>
 </html>
