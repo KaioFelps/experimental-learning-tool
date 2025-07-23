@@ -2,9 +2,9 @@
 Esse experimento visa conseguir integrar com uma LMS (o Moodle, especialmente) e
 extrair as informações abaixo do curso que realizou o deploy desta LT:
 
-- Materiais disponíveis;
-- Alunos matriculados;
-- Notas.
+- [ ] Materiais disponíveis;
+- [x] Alunos matriculados;
+- [ ] Notas.
 
 ## Configurando
 
