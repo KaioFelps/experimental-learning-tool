@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { LtiTokenData } from "../lti/lti-token";
+import { removeDeprecatedRoles } from "../lti/roles";
 import type { AccessToken } from "../lti/types";
 
 @Injectable()
@@ -21,7 +22,7 @@ export class HomeService {
       .map((member) => ({
         name: member.name as string,
         id: member.user_id as string,
-        roles: member.roles as string[],
+        roles: removeDeprecatedRoles(member.roles as string[]),
         email: member.email as string,
         username: member.ext_user_username as string,
       }));

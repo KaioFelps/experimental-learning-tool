@@ -55,7 +55,6 @@ const MembershipRoles = Object.freeze({
 
 type RoleKind = "membership" | "system" | "institution" | undefined;
 type RoleKindWithoutUndefined = Exclude<RoleKind, undefined>;
-
 type Roles = Record<RoleKindWithoutUndefined, string[]>;
 
 const rolesPerKind: Record<
@@ -82,6 +81,13 @@ function getCategoryFromUrl(roleUrl: string): [string, RoleKind] {
   if (roleUrl.includes("/institution")) return [roleUrl, "institution"];
   if (roleUrl.includes("/system")) return [roleUrl, "system"];
   return [roleUrl, undefined];
+}
+
+export function removeDeprecatedRoles(roles: string[]): string[] {
+  return roles.filter(
+    (role) =>
+      !role.startsWith("http://purl.imsglobal.org/vocab/lis/v2/person#"),
+  );
 }
 
 export default {
