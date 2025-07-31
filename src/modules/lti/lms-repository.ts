@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { removeDeprecatedRoles } from "./roles";
+import { removeDeprecatedRoles } from "$/roles";
 
 @Injectable()
 export class LMSRepository {
@@ -30,16 +30,13 @@ export class LMSRepository {
   }
 
   public async getContextCourseGrades(accessToken: string) {
-    const response = await fetch(
-      "http://localhost/mod/lti/services.php/2/lineitems",
-      {
-        headers: {
-          authorization: `Bearer ${accessToken}`,
-          "content-type": "application/json",
-          accept: "application/vnd.ims.lis.v2.lineitemcontainer+json",
-        },
+    const response = await fetch("http://localhost/mod/lti/services.php/2/lineitems", {
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+        "content-type": "application/json",
+        accept: "application/vnd.ims.lis.v2.lineitemcontainer+json",
       },
-    );
+    });
 
     console.log(await response.json());
   }

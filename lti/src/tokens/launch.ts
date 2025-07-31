@@ -1,6 +1,6 @@
 import { either } from "fp-ts";
-import z, { treeifyError } from "zod";
-import { getRolesFromClaims } from "../../modules/lti/roles";
+import z from "zod";
+import { parseLMSRoles } from "../roles";
 
 /// Dados extraídos de uma mensagem LTI Launch
 const ltiTokenSchema = z.object({
@@ -39,30 +39,31 @@ const ltiTokenSchema = z.object({
   }),
 });
 
-export type LtiToken = z.infer<typeof ltiTokenSchema>;
+export type LTILaunchTokenData = z.infer<typeof ltiTokenSchema>;
+export type LTILaunchTokenError = z.ZodError<LTILaunchTokenData>;
 
-export class LtiTokenData {
-  private constructor(private readonly data: LtiToken) {}
+export class LTILaunchToken {
+  private constructor(private readonly data: LTILaunchTokenData) {}
 
-  public static fromLtiTokenUnchecked(ltiToken: LtiToken): LtiTokenData {
-    return new LtiTokenData(ltiToken);
+  public static fromLTILaunchTokenDataUnchecked(ltiToken: LTILaunchTokenData): LTILaunchToken {
+    return new LTILaunchToken(ltiToken);
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: It doesn't worth typing the token at this point
-  public static fromLtiIdToken(idToken: Record<string, any>) {
-    const contextClaim =
-      idToken["https://purl.imsglobal.org/spec/lti/claim/context"];
+  public static fromIdToken(
+    // biome-ignore lint/suspicious/noExplicitAny: It doesn't worth typing the token at this point
+    idToken: Record<string, any>,
+  ): either.Either<LTILaunchTokenError, LTILaunchToken> {
+    const contextClaim = idToken["https://purl.imsglobal.org/spec/lti/claim/context"];
 
-    const ltContext =
-      idToken["https://purl.imsglobal.org/spec/lti/claim/resource_link"];
+    const ltContext = idToken["https://purl.imsglobal.org/spec/lti/claim/resource_link"];
 
     const { success, data, error } = ltiTokenSchema.safeParse({
       user: {
         id: idToken.sub,
         email: idToken.email,
         name: idToken.name,
-        roles: getRolesFromClaims(
-          idToken["https://purl.imsglobal.org/spec/lti/claim/roles"],
+        roles: parseLMSRoles(
+          idToken["https://purl.imsglobal.org/spec/lti/claim/roles"] as string[],
         ),
       },
       courseContext: {
@@ -74,16 +75,13 @@ export class LtiTokenData {
         descriptionOnResources: ltContext.description,
         toolIdInsideCourse: ltContext.id,
         redirectBackUrl:
-          idToken[
-            "https://purl.imsglobal.org/spec/lti/claim/launch_presentation"
-          ].return_url,
+          idToken["https://purl.imsglobal.org/spec/lti/claim/launch_presentation"].return_url,
       },
       tokenData: {
         exp: idToken.exp,
         learningToolClientIdInsideLms: idToken.aud,
         lmsUrl: idToken.iss,
-        deploymentId:
-          idToken["https://purl.imsglobal.org/spec/lti/claim/deployment_id"],
+        deploymentId: idToken["https://purl.imsglobal.org/spec/lti/claim/deployment_id"],
         serviceEndpointsUrl:
           idToken["https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome"]
             .lis_outcome_service_url,
@@ -93,16 +91,15 @@ export class LtiTokenData {
       },
       lmsEndpoints: {
         contextMembership:
-          idToken["https://purl.imsglobal.org/spec/lti/claim/custom"]
-            ?.context_memberships_url,
+          idToken["https://purl.imsglobal.org/spec/lti/claim/custom"]?.context_memberships_url,
       },
-    } satisfies LtiToken);
+    } satisfies LTILaunchTokenData);
 
     if (!success) {
-      return either.left(treeifyError(error));
+      return either.left(error);
     }
 
-    return either.right(new LtiTokenData(data));
+    return either.right(new LTILaunchToken(data));
   }
 
   public getData() {

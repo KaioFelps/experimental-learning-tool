@@ -4,6 +4,7 @@ import type { NestExpressApplication } from "@nestjs/platform-express";
 import * as cookieParser from "cookie-parser";
 import { configDotenv } from "dotenv";
 import * as session from "express-session";
+import { workspaceDir } from "./consts";
 import { EnvVarsService } from "./modules/config/env/env.service";
 import { RootModule } from "./root.module";
 
@@ -24,7 +25,7 @@ async function bootstrap() {
   );
 
   app.setViewEngine("ejs");
-  const viewsDir = join(__dirname, "..", "views");
+  const viewsDir = join(workspaceDir, "views");
   app.setBaseViewsDir(viewsDir);
 
   const env = app.get(EnvVarsService);

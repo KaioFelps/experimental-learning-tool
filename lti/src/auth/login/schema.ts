@@ -1,9 +1,6 @@
-import { either, option } from "fp-ts";
 import z from "zod";
-import type { LmsRegisters } from "../lms-registers";
-import { OIDCRedirectBuilder } from "../oidc-redirect-builder";
 
-const oidcLoginSchema = z.object({
+export const oidcLoginSchema = z.object({
   /** Issuer (url da LMS que está iniciando o launch)
    * Com base no Issuer (E TAMBÉM client_id) é que vamos:
    * - descobrir qual o endpoint de autenticação para onde devemos enviar a requisição
@@ -43,59 +40,5 @@ const oidcLoginSchema = z.object({
   lti_deployment_id: z.string(),
 });
 
-export type OIDCLoginType = z.infer<typeof oidcLoginSchema>;
-export type Error = z.ZodError<OIDCLoginType>;
-
-export class OIDCLogin {
-  private payload: OIDCLoginType;
-
-  private constructor(payload: OIDCLoginType) {
-    this.payload = payload;
-  }
-
-  public static fromObject(body: object): either.Either<Error, OIDCLogin> {
-    const { success, data, error } = oidcLoginSchema.safeParse(body);
-
-    if (!success) {
-      return either.left(error);
-    }
-
-    return either.right(new OIDCLogin(data));
-  }
-
-  public get iss() {
-    return this.payload.iss;
-  }
-
-  public get target_link_uri() {
-    return this.payload.target_link_uri;
-  }
-
-  public get login_hint() {
-    return this.payload.login_hint;
-  }
-
-  public get lti_message_hint() {
-    return this.payload.lti_message_hint;
-  }
-
-  public get client_id() {
-    return this.payload.client_id;
-  }
-
-  public get lti_deployment_id() {
-    return this.payload.lti_deployment_id;
-  }
-
-  public intoOIDCRedirectBuilder(
-    registers: LmsRegisters,
-  ): option.Option<OIDCRedirectBuilder> {
-    const lmsData = registers.get(this.client_id, this.iss);
-    if (!lmsData) return option.none;
-    return option.some(new OIDCRedirectBuilder(this, lmsData));
-  }
-
-  public getPayload(): OIDCLoginType {
-    return this.payload;
-  }
-}
+export type OIDCLoginDataType = z.infer<typeof oidcLoginSchema>;
+export type OIDCLoginError = z.ZodError<OIDCLoginDataType>;

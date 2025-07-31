@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
+import { LTILaunchTokenData } from "$/tokens/launch";
 import { LMSRepository } from "../lti/lms-repository";
-import type { LtiTokenData } from "../lti/lti-token";
 import type { AccessToken } from "../lti/types";
 
 @Injectable()
 export class HomeService {
   public constructor(private lmsRepository: LMSRepository) {}
 
-  public async getMembersList(ltiData: LtiTokenData, accessToken: AccessToken) {
+  public async getMembersList(ltiData: LTILaunchTokenData, accessToken: AccessToken) {
     return await this.lmsRepository.getContextCourseMembersList(
       ltiData.lmsEndpoints.contextMembership,
       accessToken.token,
