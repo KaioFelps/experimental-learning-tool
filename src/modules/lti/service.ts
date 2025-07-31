@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { either, option, task, taskEither } from "fp-ts";
+import { either, option, taskEither } from "fp-ts";
+import { pipe } from "fp-ts/lib/function";
 import * as jose from "jose";
 import type { HttpRequest } from "src/lib/nest";
 import { OIDCLoginDataType } from "$/auth/login/schema";
@@ -9,7 +10,6 @@ import { LMSRegisters } from "$/register/registers";
 import { LTILaunchToken, LTILaunchTokenData } from "$/tokens/launch";
 import { EnvVarsService } from "../config/env/env.service";
 import type { AccessToken } from "./types";
-import { pipe } from "fp-ts/lib/function";
 
 @Injectable()
 export class LtiService {
