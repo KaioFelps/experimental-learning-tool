@@ -1,5 +1,8 @@
 {
   "name": "lti-experiment",
+  "workspaces": [
+    "lti"
+  ],
   "version": "0.0.1",
   "description": "",
   "author": "",

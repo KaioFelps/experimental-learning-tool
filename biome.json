@@ -6,14 +6,15 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["src/**", "apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts"]
+    "includes": ["src/**", "lti/**", "apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts"]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
     "useEditorconfig": true,
-    "formatWithErrors": true
+    "formatWithErrors": true,
+    "lineWidth": 95
   },
   "linter": {
     "enabled": true,
