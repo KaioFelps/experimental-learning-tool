@@ -9,6 +9,9 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
+    "strict": true,
+    "strictFunctionTypes": true,
+    "alwaysStrict": true,
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
@@ -16,6 +19,10 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["src/*"],
+      "$/*": ["lti/src/*"]
+    }
   }
 }
