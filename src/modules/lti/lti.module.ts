@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { LMSRegisters } from "lti/src/register/registers";
+import { InMemoryRegisterStore } from "$/register/register-store";
 import { EnvVarsService } from "../config/env/env.service";
 import { LtiController } from "./controllers/lti.controller";
 import { OIDCController } from "./controllers/oidc.controller";
@@ -14,7 +15,7 @@ import { LtiService } from "./service";
       provide: LMSRegisters,
       inject: [EnvVarsService],
       useFactory: (env: EnvVarsService) => {
-        const registers = new LMSRegisters();
+        const registers = new LMSRegisters(new InMemoryRegisterStore());
 
         registers.register({
           authEndpoint: env.vars.lti.authEndpoint,

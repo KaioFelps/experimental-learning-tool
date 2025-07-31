@@ -1,6 +1,7 @@
 import { option } from "fp-ts";
 import { pipe } from "fp-ts/lib/function";
 import { KeysSet } from "./keys-set";
+import { IRegisterStore } from "./register-store";
 
 export class LMSRegisterData {
   public constructor(
@@ -21,13 +22,13 @@ type RegisterArgs = {
 };
 
 export class LMSRegisters {
-  private registersMap: Map<string, LMSRegisterData> = new Map();
+  public constructor(private store: IRegisterStore) {}
 
   public register({ jwksEndpoint, authEndpoint, clientId, lms, tokenEndpoint }: RegisterArgs) {
     const key = LMSRegisters.formatKey(clientId, lms);
     const keysSet = new KeysSet(jwksEndpoint);
 
-    this.registersMap.set(
+    this.store.save(
       key,
       new LMSRegisterData(tokenEndpoint, authEndpoint, clientId, lms, keysSet),
     );
@@ -36,7 +37,7 @@ export class LMSRegisters {
   public get(clientId: string, lms: string): option.Option<LMSRegisterData> {
     return pipe(
       option.fromNullable(LMSRegisters.formatKey(clientId, lms)),
-      option.map((key) => this.registersMap.get(key)),
+      option.map((key) => this.store.get(key)),
       option.map(option.fromNullable),
       option.flatten,
     );
